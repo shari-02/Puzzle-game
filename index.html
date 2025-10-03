@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Puzzle Master - Professional Puzzle Game</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="game-container">
+        <!-- Header -->
+        <header class="game-header">
+            <div class="logo">
+                <i class="fas fa-puzzle-piece"></i>
+                <h1>Puzzle Master</h1>
+            </div>
+            <div class="header-controls">
+                <div class="score-display">
+                    <span class="score-label">Score:</span>
+                    <span id="score">0</span>
+                </div>
+                <div class="timer-display">
+                    <span class="timer-label">Time:</span>
+                    <span id="timer">00:00</span>
+                </div>
+                <button id="soundToggle" class="control-btn" title="Toggle Sound">
+                    <i class="fas fa-volume-up"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Menu -->
+        <div id="mainMenu" class="menu-screen">
+            <div class="menu-content">
+                <h2>Choose Your Puzzle Adventure</h2>
+                <div class="game-modes">
+                    <div class="mode-card" data-mode="sliding">
+                        <div class="mode-icon">
+                            <i class="fas fa-th"></i>
+                        </div>
+                        <h3>Sliding Puzzle</h3>
+                        <p>Classic 15-puzzle with numbered tiles</p>
+                        <div class="difficulty-selector">
+                            <label>Difficulty:</label>
+                            <select id="slidingDifficulty">
+                                <option value="3">3x3 (Easy)</option>
+                                <option value="4" selected>4x4 (Medium)</option>
+                                <option value="5">5x5 (Hard)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mode-card" data-mode="jigsaw">
+                        <div class="mode-icon">
+                            <i class="fas fa-puzzle-piece"></i>
+                        </div>
+                        <h3>Jigsaw Puzzle</h3>
+                        <p>Image-based puzzle with irregular pieces</p>
+                        <div class="difficulty-selector">
+                            <label>Pieces:</label>
+                            <select id="jigsawDifficulty">
+                                <option value="12">12 pieces (Easy)</option>
+                                <option value="24" selected>24 pieces (Medium)</option>
+                                <option value="48">48 pieces (Hard)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mode-card" data-mode="memory">
+                        <div class="mode-icon">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <h3>Memory Match</h3>
+                        <p>Find matching pairs of cards</p>
+                        <div class="difficulty-selector">
+                            <label>Pairs:</label>
+                            <select id="memoryDifficulty">
+                                <option value="8">8 pairs (Easy)</option>
+                                <option value="12" selected>12 pairs (Medium)</option>
+                                <option value="18">18 pairs (Hard)</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="mode-card" data-mode="word">
+                        <div class="mode-icon">
+                            <i class="fas fa-font"></i>
+                        </div>
+                        <h3>Word Search</h3>
+                        <p>Find hidden words in a letter grid</p>
+                        <div class="difficulty-selector">
+                            <label>Size:</label>
+                            <select id="wordDifficulty">
+                                <option value="8">8x8 (Easy)</option>
+                                <option value="12" selected>12x12 (Medium)</option>
+                                <option value="16">16x16 (Hard)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="menu-actions">
+                    <button id="showTutorial" class="btn btn-secondary">
+                        <i class="fas fa-graduation-cap"></i> Tutorial
+                    </button>
+                    <button id="showDashboard" class="btn btn-secondary">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard
+                    </button>
+                    <button id="showSettings" class="btn btn-secondary">
+                        <i class="fas fa-cog"></i> Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Area -->
+        <div id="gameArea" class="game-area hidden">
+            <div class="game-header-bar">
+                <button id="backToMenu" class="btn btn-back">
+                    <i class="fas fa-arrow-left"></i> Back to Menu
+                </button>
+                <div class="game-info">
+                    <span id="currentMode">Sliding Puzzle</span>
+                    <span id="currentDifficulty">4x4</span>
+                </div>
+                <div class="game-controls">
+                    <button id="shuffleBtn" class="btn btn-primary">
+                        <i class="fas fa-shuffle"></i> Shuffle
+                    </button>
+                    <button id="hintBtn" class="btn btn-secondary">
+                        <i class="fas fa-lightbulb"></i> Hint
+                    </button>
+                </div>
+            </div>
+            
+            <div class="game-board-container">
+                <div id="gameBoard" class="game-board"></div>
+            </div>
+            
+            <div class="game-progress">
+                <div class="progress-bar">
+                    <div id="progressFill" class="progress-fill"></div>
+                </div>
+                <span id="progressText">0% Complete</span>
+            </div>
+        </div>
+
+    <!-- Dashboard Sidebar -->
+    <div id="dashboardSidebar" class="dashboard-sidebar hidden">
+        <div class="sidebar-header">
+            <h3><i class="fas fa-tachometer-alt"></i> Dashboard</h3>
+            <button id="closeDashboard" class="close-btn">&times;</button>
+        </div>
+        <div class="sidebar-content">
+            <!-- Dashboard Navigation -->
+            <div class="dashboard-nav">
+                <button class="dashboard-tab active" data-tab="overview">
+                    <i class="fas fa-chart-pie"></i> Overview
+                </button>
+                <button class="dashboard-tab" data-tab="statistics">
+                    <i class="fas fa-chart-bar"></i> Statistics
+                </button>
+                <button class="dashboard-tab" data-tab="achievements">
+                    <i class="fas fa-trophy"></i> Achievements
+                </button>
+                <button class="dashboard-tab" data-tab="progress">
+                    <i class="fas fa-chart-line"></i> Progress
+                </button>
+                <button class="dashboard-tab" data-tab="leaderboard">
+                    <i class="fas fa-crown"></i> Leaderboard
+                </button>
+            </div>
+
+                    <!-- Overview Tab -->
+                    <div id="overviewTab" class="dashboard-tab-content active">
+                        <div class="overview-grid">
+                            <div class="overview-card">
+                                <div class="card-icon">
+                                    <i class="fas fa-gamepad"></i>
+                                </div>
+                                <div class="card-content">
+                                    <h4>Games Played</h4>
+                                    <span class="big-number" id="overviewGamesPlayed">0</span>
+                                </div>
+                            </div>
+                            <div class="overview-card">
+                                <div class="card-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <div class="card-content">
+                                    <h4>Best Time</h4>
+                                    <span class="big-number" id="overviewBestTime">--:--</span>
+                                </div>
+                            </div>
+                            <div class="overview-card">
+                                <div class="card-icon">
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <div class="card-content">
+                                    <h4>Total Score</h4>
+                                    <span class="big-number" id="overviewTotalScore">0</span>
+                                </div>
+                            </div>
+                            <div class="overview-card">
+                                <div class="card-icon">
+                                    <i class="fas fa-percentage"></i>
+                                </div>
+                                <div class="card-content">
+                                    <h4>Win Rate</h4>
+                                    <span class="big-number" id="overviewWinRate">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="quick-stats">
+                            <h4>Quick Stats</h4>
+                            <div class="quick-stats-grid">
+                                <div class="quick-stat">
+                                    <span class="stat-label">Current Streak:</span>
+                                    <span id="currentStreak">0</span>
+                                </div>
+                                <div class="quick-stat">
+                                    <span class="stat-label">Longest Streak:</span>
+                                    <span id="longestStreak">0</span>
+                                </div>
+                                <div class="quick-stat">
+                                    <span class="stat-label">Average Time:</span>
+                                    <span id="averageTime">--:--</span>
+                                </div>
+                                <div class="quick-stat">
+                                    <span class="stat-label">Favorite Mode:</span>
+                                    <span id="favoriteMode">None</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Statistics Tab -->
+                    <div id="statisticsTab" class="dashboard-tab-content">
+                        <div class="stats-grid">
+                            <div class="stat-item">
+                                <span class="stat-label">Games Played:</span>
+                                <span id="gamesPlayed">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Best Time:</span>
+                                <span id="bestTime">--:--</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Total Score:</span>
+                                <span id="totalScore">0</span>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-label">Win Rate:</span>
+                                <span id="winRate">0%</span>
+                            </div>
+                        </div>
+                        <div class="mode-stats">
+                            <h4>Mode Statistics</h4>
+                            <div class="mode-stats-grid">
+                                <div class="mode-stat">
+                                    <h5>Sliding Puzzle</h5>
+                                    <div class="mode-stat-details">
+                                        <span>Games: <span id="slidingGames">0</span></span>
+                                        <span>Best: <span id="slidingBest">--:--</span></span>
+                                        <span>Avg: <span id="slidingAvg">--:--</span></span>
+                                    </div>
+                                </div>
+                                <div class="mode-stat">
+                                    <h5>Jigsaw Puzzle</h5>
+                                    <div class="mode-stat-details">
+                                        <span>Games: <span id="jigsawGames">0</span></span>
+                                        <span>Best: <span id="jigsawBest">--:--</span></span>
+                                        <span>Avg: <span id="jigsawAvg">--:--</span></span>
+                                    </div>
+                                </div>
+                                <div class="mode-stat">
+                                    <h5>Memory Match</h5>
+                                    <div class="mode-stat-details">
+                                        <span>Games: <span id="memoryGames">0</span></span>
+                                        <span>Best: <span id="memoryBest">--:--</span></span>
+                                        <span>Avg: <span id="memoryAvg">--:--</span></span>
+                                    </div>
+                                </div>
+                                <div class="mode-stat">
+                                    <h5>Word Search</h5>
+                                    <div class="mode-stat-details">
+                                        <span>Games: <span id="wordGames">0</span></span>
+                                        <span>Best: <span id="wordBest">--:--</span></span>
+                                        <span>Avg: <span id="wordAvg">--:--</span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stats-chart">
+                            <h4>Recent Games</h4>
+                            <div id="recentGames" class="recent-games"></div>
+                        </div>
+                    </div>
+
+                    <!-- Achievements Tab -->
+                    <div id="achievementsTab" class="dashboard-tab-content">
+                        <div class="achievements-grid">
+                            <div class="achievement-card locked" data-achievement="first-game">
+                                <div class="achievement-icon">
+                                    <i class="fas fa-play"></i>
+                                </div>
+                                <div class="achievement-content">
+                                    <h5>First Steps</h5>
+                                    <p>Complete your first puzzle</p>
+                                    <div class="achievement-progress">
+                                        <div class="progress-bar-small">
+                                            <div class="progress-fill-small" style="width: 0%"></div>
+                                        </div>
+                                        <span class="progress-text">0/1</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="achievement-card locked" data-achievement="speed-demon">
+                                <div class="achievement-icon">
+                                    <i class="fas fa-bolt"></i>
+                                </div>
+                                <div class="achievement-content">
+                                    <h5>Speed Demon</h5>
+                                    <p>Complete a puzzle in under 30 seconds</p>
+                                    <div class="achievement-progress">
+                                        <div class="progress-bar-small">
+                                            <div class="progress-fill-small" style="width: 0%"></div>
+                                        </div>
+                                        <span class="progress-text">0/1</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="achievement-card locked" data-achievement="perfectionist">
+                                <div class="achievement-icon">
+                                    <i class="fas fa-star"></i>
+                                </div>
+                                <div class="achievement-content">
+                                    <h5>Perfectionist</h5>
+                                    <p>Complete 10 puzzles without hints</p>
+                                    <div class="achievement-progress">
+                                        <div class="progress-bar-small">
+                                            <div class="progress-fill-small" style="width: 0%"></div>
+                                        </div>
+                                        <span class="progress-text">0/10</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="achievement-card locked" data-achievement="streak-master">
+                                <div class="achievement-icon">
+                                    <i class="fas fa-fire"></i>
+                                </div>
+                                <div class="achievement-content">
+                                    <h5>Streak Master</h5>
+                                    <p>Win 5 games in a row</p>
+                                    <div class="achievement-progress">
+                                        <div class="progress-bar-small">
+                                            <div class="progress-fill-small" style="width: 0%"></div>
+                                        </div>
+                                        <span class="progress-text">0/5</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="achievement-card locked" data-achievement="puzzle-master">
+                                <div class="achievement-icon">
+                                    <i class="fas fa-crown"></i>
+                                </div>
+                                <div class="achievement-content">
+                                    <h5>Puzzle Master</h5>
+                                    <p>Complete all puzzle modes</p>
+                                    <div class="achievement-progress">
+                                        <div class="progress-bar-small">
+                                            <div class="progress-fill-small" style="width: 0%"></div>
+                                        </div>
+                                        <span class="progress-text">0/4</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="achievement-card locked" data-achievement="high-scorer">
+                                <div class="achievement-icon">
+                                    <i class="fas fa-trophy"></i>
+                                </div>
+                                <div class="achievement-content">
+                                    <h5>High Scorer</h5>
+                                    <p>Reach 10,000 total points</p>
+                                    <div class="achievement-progress">
+                                        <div class="progress-bar-small">
+                                            <div class="progress-fill-small" style="width: 0%"></div>
+                                        </div>
+                                        <span class="progress-text">0/10000</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Progress Tab -->
+                    <div id="progressTab" class="dashboard-tab-content">
+                        <div class="progress-overview">
+                            <h4>Overall Progress</h4>
+                            <div class="progress-ring">
+                                <svg class="progress-ring-svg" width="120" height="120">
+                                    <circle class="progress-ring-circle" stroke="#e0e0e0" stroke-width="8" fill="transparent" r="52" cx="60" cy="60"/>
+                                    <circle class="progress-ring-circle progress-ring-fill" stroke="#667eea" stroke-width="8" fill="transparent" r="52" cx="60" cy="60" style="stroke-dasharray: 326.73; stroke-dashoffset: 326.73;"/>
+                                </svg>
+                                <div class="progress-ring-text">
+                                    <span id="overallProgress">0%</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mode-progress">
+                            <h4>Mode Progress</h4>
+                            <div class="mode-progress-list">
+                                <div class="mode-progress-item">
+                                    <div class="mode-progress-info">
+                                        <span class="mode-name">Sliding Puzzle</span>
+                                        <span class="mode-level">Level <span id="slidingLevel">1</span></span>
+                                    </div>
+                                    <div class="mode-progress-bar">
+                                        <div class="mode-progress-fill" id="slidingProgressFill" style="width: 0%"></div>
+                                    </div>
+                                    <span class="mode-progress-text" id="slidingProgressText">0/100 XP</span>
+                                </div>
+                                <div class="mode-progress-item">
+                                    <div class="mode-progress-info">
+                                        <span class="mode-name">Jigsaw Puzzle</span>
+                                        <span class="mode-level">Level <span id="jigsawLevel">1</span></span>
+                                    </div>
+                                    <div class="mode-progress-bar">
+                                        <div class="mode-progress-fill" id="jigsawProgressFill" style="width: 0%"></div>
+                                    </div>
+                                    <span class="mode-progress-text" id="jigsawProgressText">0/100 XP</span>
+                                </div>
+                                <div class="mode-progress-item">
+                                    <div class="mode-progress-info">
+                                        <span class="mode-name">Memory Match</span>
+                                        <span class="mode-level">Level <span id="memoryLevel">1</span></span>
+                                    </div>
+                                    <div class="mode-progress-bar">
+                                        <div class="mode-progress-fill" id="memoryProgressFill" style="width: 0%"></div>
+                                    </div>
+                                    <span class="mode-progress-text" id="memoryProgressText">0/100 XP</span>
+                                </div>
+                                <div class="mode-progress-item">
+                                    <div class="mode-progress-info">
+                                        <span class="mode-name">Word Search</span>
+                                        <span class="mode-level">Level <span id="wordLevel">1</span></span>
+                                    </div>
+                                    <div class="mode-progress-bar">
+                                        <div class="mode-progress-fill" id="wordProgressFill" style="width: 0%"></div>
+                                    </div>
+                                    <span class="mode-progress-text" id="wordProgressText">0/100 XP</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Leaderboard Tab -->
+                    <div id="leaderboardTab" class="dashboard-tab-content">
+                        <div class="leaderboard-filters">
+                            <select id="leaderboardMode">
+                                <option value="all">All Modes</option>
+                                <option value="sliding">Sliding Puzzle</option>
+                                <option value="jigsaw">Jigsaw Puzzle</option>
+                                <option value="memory">Memory Match</option>
+                                <option value="word">Word Search</option>
+                            </select>
+                            <select id="leaderboardPeriod">
+                                <option value="all">All Time</option>
+                                <option value="week">This Week</option>
+                                <option value="month">This Month</option>
+                            </select>
+                        </div>
+                        <div class="leaderboard-list">
+                            <div class="leaderboard-header">
+                                <span>Rank</span>
+                                <span>Player</span>
+                                <span>Score</span>
+                                <span>Time</span>
+                            </div>
+                            <div id="leaderboardEntries" class="leaderboard-entries">
+                                <div class="leaderboard-entry">
+                                    <span class="rank">1</span>
+                                    <span class="player">You</span>
+                                    <span class="score">0</span>
+                                    <span class="time">--:--</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Overlay -->
+    <div id="dashboardOverlay" class="dashboard-overlay hidden"></div>
+
+    <!-- Tutorial Modal -->
+        <div id="tutorialModal" class="modal hidden">
+            <div class="modal-content tutorial-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-graduation-cap"></i> Game Tutorial</h3>
+                    <button id="closeTutorial" class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <!-- Tutorial Navigation -->
+                    <div class="tutorial-nav">
+                        <button class="tutorial-tab active" data-tutorial="overview">
+                            <i class="fas fa-info-circle"></i> Overview
+                        </button>
+                        <button class="tutorial-tab" data-tutorial="sliding">
+                            <i class="fas fa-th"></i> Sliding Puzzle
+                        </button>
+                        <button class="tutorial-tab" data-tutorial="jigsaw">
+                            <i class="fas fa-puzzle-piece"></i> Jigsaw Puzzle
+                        </button>
+                        <button class="tutorial-tab" data-tutorial="memory">
+                            <i class="fas fa-brain"></i> Memory Match
+                        </button>
+                        <button class="tutorial-tab" data-tutorial="word">
+                            <i class="fas fa-font"></i> Word Search
+                        </button>
+                        <button class="tutorial-tab" data-tutorial="tips">
+                            <i class="fas fa-lightbulb"></i> Tips & Tricks
+                        </button>
+                    </div>
+
+                    <!-- Overview Tutorial -->
+                    <div id="overviewTutorial" class="tutorial-tab-content active">
+                        <div class="tutorial-section">
+                            <h4>Welcome to Puzzle Master!</h4>
+                            <p>Puzzle Master is a comprehensive puzzle game featuring four different game modes, each with multiple difficulty levels. Master all modes to become the ultimate Puzzle Master!</p>
+                        </div>
+                        <div class="tutorial-section">
+                            <h4>Game Features</h4>
+                            <ul class="feature-list">
+                                <li><i class="fas fa-trophy"></i> <strong>Achievements:</strong> Unlock 6 different achievements</li>
+                                <li><i class="fas fa-chart-line"></i> <strong>Progress Tracking:</strong> Level up in each puzzle mode</li>
+                                <li><i class="fas fa-star"></i> <strong>Scoring System:</strong> Earn points and track your best times</li>
+                                <li><i class="fas fa-sound"></i> <strong>Sound Effects:</strong> Immersive audio feedback</li>
+                                <li><i class="fas fa-mobile-alt"></i> <strong>Mobile Support:</strong> Play on any device</li>
+                            </ul>
+                        </div>
+                        <div class="tutorial-section">
+                            <h4>How to Play</h4>
+                            <ol class="instruction-list">
+                                <li>Choose a puzzle mode from the main menu</li>
+                                <li>Select your preferred difficulty level</li>
+                                <li>Complete the puzzle as quickly as possible</li>
+                                <li>Earn points and unlock achievements</li>
+                                <li>Check your progress in the Dashboard</li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <!-- Sliding Puzzle Tutorial -->
+                    <div id="slidingTutorial" class="tutorial-tab-content">
+                        <div class="tutorial-section">
+                            <h4>Sliding Puzzle</h4>
+                            <p>Arrange numbered tiles in order by sliding them into the empty space. Only tiles adjacent to the empty space can be moved.</p>
+                        </div>
+                        <div class="tutorial-section">
+                            <h4>How to Play</h4>
+                            <ol class="instruction-list">
+                                <li>Click on any tile adjacent to the empty space</li>
+                                <li>The tile will slide into the empty position</li>
+                                <li>Continue until all tiles are in numerical order</li>
+                                <li>The empty space should be in the bottom-right corner</li>
+                            </ol>
+                        </div>
+                        <div class="tutorial-section">
+                            <h4>Difficulty Levels</h4>
+                            <ul class="difficulty-list">
+                                <li><strong>3x3 (Easy):</strong> 8 tiles to arrange</li>
+                                <li><strong>4x4 (Medium):</strong> 15 tiles to arrange</li>
+                                <li><strong>5x5 (Hard):</strong> 24 tiles to arrange</li>
+                            </ul>
+                        </div>
+                        <div class="tutorial-section">
+                            <h4>Tips</h4>
+                            <ul class="tip-list">
+                                <li>Start by placing the first row, then the second row</li>
+                                <li>Work systematically from top to bottom</li>
+                                <li>Use the shuffle button if you get stuck</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Jigsaw Puzzle Tutorial -->
+                    <div id="jigsawTutorial" class="tutorial-tab-content">
+                        <div class="tutorial-section">
+                            <h4>Jigsaw Puzzle</h4>
+                            <p>Drag and drop puzzle pieces to complete the image. Place all pieces in the correct positions to solve the puzzle.</p>
+                        </div>
+                        <div class="tutorial-section">
+                            <h4>How to Play</h4>
+                            <ol class="instruction-list">
+                                <li>Click and drag any puzzle piece</li>
+                                <li>Drop it in the correct position</li>
+                                <li>Pieces will snap into place when positioned correctly</li>
+                                <li>Complete all pieces to finish the puzzle</li>
+                            </ol>
+                        </div>
+                        <div class="tutorial-section">
+                            <h4>Difficulty Levels</h4>
+                            <ul class="difficulty-list">
+                                <li><strong>12 pieces (Easy):</strong> Large, easy-to-place pieces</li>
+                                <li><strong>24 pieces (Medium):</strong> Medium-sized pieces</li>
+                                <li><strong>48 pieces (Hard):</strong> Small, challenging pieces</li>
+                            </ul>
+                        </div>
+                        <div class="tutorial-section">
+                            <h4>Tips</h4>
+                            <ul class="tip-list">
+                                <li>Start with corner pieces and edge pieces</li>
+                                <li>Look for distinctive colors or patterns</li>
+                                <li>Group similar pieces together</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Memory Match Tutorial -->
+                    <div id="memoryTutorial" class="tutorial-tab-content">
+                        <div class="tutorial-section">
+                            <h4>Memory Match</h4>
+                            <p>Find matching pairs of cards by flipping them over. Remember the positions of symbols to make successful matches.</p>
+                        </div>
+                        <div class="tutorial-section">
+                            <h4>How to Play</h4>
+                            <ol class="instruction-list">
+                                <li>Click on any card to flip it over</li>
+                                <li>Click on a second card to see if it matches</li>
+                                <li>If they match, both cards stay flipped</li>
+                                <li>If they don't match, both cards flip back</li>
+                                <li>Find all matching pairs to win</li>
+                            </ol>
+                        </div>
+                        <div class="tutorial-section">
+                            <h4>Difficulty Levels</h4>
+                            <ul class="difficulty-list">
+                                <li><strong>8 pairs (Easy):</strong> 16 cards total</li>
+                                <li><strong>12 pairs (Medium):</strong> 24 cards total</li>
+                                <li><strong>18 pairs (Hard):</strong> 36 cards total</li>
+                            </ul>
+                        </div>
+                        <div class="tutorial-section">
+                            <h4>Tips</h4>
+                            <ul class="tip-list">
+                                <li>Pay attention to card positions</li>
+                                <li>Try to remember where you've seen each symbol</li>
+                                <li>Take your time - there's no time limit</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Word Search Tutorial -->
+                    <div id="wordTutorial" class="tutorial-tab-content">
+                        <div class="tutorial-section">
+                            <h4>Word Search</h4>
+                            <p>Find hidden words in the letter grid. Words can be horizontal, vertical, or diagonal in any direction.</p>
+                        </div>
+                        <div class="tutorial-section">
+                            <h4>How to Play</h4>
+                            <ol class="instruction-list">
+                                <li>Click on letters to select them</li>
+                                <li>Select letters in sequence to form words</li>
+                                <li>Words must be at least 3 letters long</li>
+                                <li>Found words will be highlighted</li>
+                                <li>Find all hidden words to complete the puzzle</li>
+                            </ol>
+                        </div>
+                        <div class="tutorial-section">
+                            <h4>Difficulty Levels</h4>
+                            <ul class="difficulty-list">
+                                <li><strong>8x8 (Easy):</strong> Smaller grid with fewer words</li>
+                                <li><strong>12x12 (Medium):</strong> Medium grid with more words</li>
+                                <li><strong>16x16 (Hard):</strong> Large grid with many words</li>
+                            </ul>
+                        </div>
+                        <div class="tutorial-section">
+                            <h4>Tips</h4>
+                            <ul class="tip-list">
+                                <li>Look for common letter patterns</li>
+                                <li>Check all directions: horizontal, vertical, diagonal</li>
+                                <li>Start with shorter words first</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Tips & Tricks Tutorial -->
+                    <div id="tipsTutorial" class="tutorial-tab-content">
+                        <div class="tutorial-section">
+                            <h4>General Tips</h4>
+                            <ul class="tip-list">
+                                <li><strong>Take your time:</strong> There's no rush - focus on accuracy</li>
+                                <li><strong>Use hints:</strong> Click the hint button if you get stuck</li>
+                                <li><strong>Practice regularly:</strong> The more you play, the better you get</li>
+                                <li><strong>Try different difficulties:</strong> Start easy and work your way up</li>
+                            </ul>
+                        </div>
+                        <div class="tutorial-section">
+                            <h4>Scoring Tips</h4>
+                            <ul class="tip-list">
+                                <li><strong>Speed bonus:</strong> Complete puzzles quickly for extra points</li>
+                                <li><strong>Fewer moves:</strong> Efficient solutions earn more points</li>
+                                <li><strong>No hints:</strong> Avoid using hints for maximum score</li>
+                                <li><strong>Streaks:</strong> Win multiple games in a row for bonus points</li>
+                            </ul>
+                        </div>
+                        <div class="tutorial-section">
+                            <h4>Keyboard Shortcuts</h4>
+                            <ul class="shortcut-list">
+                                <li><kbd>Escape</kbd> - Return to main menu</li>
+                                <li><kbd>R</kbd> - Shuffle current puzzle</li>
+                                <li><kbd>H</kbd> - Show hint</li>
+                                <li><kbd>Space</kbd> - Pause/Resume game</li>
+                            </ul>
+                        </div>
+                        <div class="tutorial-section">
+                            <h4>Achievements</h4>
+                            <p>Unlock achievements by completing specific challenges:</p>
+                            <ul class="achievement-list">
+                                <li><i class="fas fa-play"></i> <strong>First Steps:</strong> Complete your first puzzle</li>
+                                <li><i class="fas fa-bolt"></i> <strong>Speed Demon:</strong> Complete a puzzle in under 30 seconds</li>
+                                <li><i class="fas fa-star"></i> <strong>Perfectionist:</strong> Complete 10 puzzles without hints</li>
+                                <li><i class="fas fa-fire"></i> <strong>Streak Master:</strong> Win 5 games in a row</li>
+                                <li><i class="fas fa-crown"></i> <strong>Puzzle Master:</strong> Complete all puzzle modes</li>
+                                <li><i class="fas fa-trophy"></i> <strong>High Scorer:</strong> Reach 10,000 total points</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div id="settingsModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Settings</h3>
+                    <button id="closeSettings" class="close-btn">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="setting-group">
+                        <label for="themeSelect">Theme:</label>
+                        <select id="themeSelect">
+                            <option value="light">Light</option>
+                            <option value="dark">Dark</option>
+                            <option value="colorful">Colorful</option>
+                        </select>
+                    </div>
+                    <div class="setting-group">
+                        <label for="animationSpeed">Animation Speed:</label>
+                        <select id="animationSpeed">
+                            <option value="slow">Slow</option>
+                            <option value="normal" selected>Normal</option>
+                            <option value="fast">Fast</option>
+                        </select>
+                    </div>
+                    <div class="setting-group">
+                        <label>
+                            <input type="checkbox" id="soundEnabled" checked>
+                            Enable Sound Effects
+                        </label>
+                    </div>
+                    <div class="setting-group">
+                        <label>
+                            <input type="checkbox" id="showHints" checked>
+                            Show Hints
+                        </label>
+                    </div>
+                    <div class="setting-group">
+                        <h4>Data Management</h4>
+                        <div class="data-actions">
+                            <button id="exportData" class="btn btn-secondary">
+                                <i class="fas fa-download"></i> Export Data
+                            </button>
+                            <button id="importData" class="btn btn-secondary">
+                                <i class="fas fa-upload"></i> Import Data
+                            </button>
+                            <button id="resetData" class="btn btn-danger">
+                                <i class="fas fa-trash"></i> Reset All Data
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Victory Screen -->
+        <div id="victoryScreen" class="victory-screen hidden">
+            <div class="victory-content">
+                <div class="victory-icon">
+                    <i class="fas fa-trophy"></i>
+                </div>
+                <h2>Congratulations!</h2>
+                <p id="victoryMessage">You completed the puzzle!</p>
+                <div class="victory-stats">
+                    <div class="victory-stat">
+                        <span class="stat-label">Time:</span>
+                        <span id="victoryTime">00:00</span>
+                    </div>
+                    <div class="victory-stat">
+                        <span class="stat-label">Score:</span>
+                        <span id="victoryScore">0</span>
+                    </div>
+                    <div class="victory-stat">
+                        <span class="stat-label">Moves:</span>
+                        <span id="victoryMoves">0</span>
+                    </div>
+                </div>
+                <div class="victory-actions">
+                    <button id="playAgain" class="btn btn-primary">Play Again</button>
+                    <button id="newPuzzle" class="btn btn-secondary">New Puzzle</button>
+                    <button id="backToMenuFromVictory" class="btn btn-outline">Back to Menu</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
